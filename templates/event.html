@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block title %}{{event.name}}{% endblock %}
+{% block header %}{{event.name}}{% endblock %}
+
+{% block content %}
+
+
+<img class="cube_image" src={{ event.image_url }}>
+
+<div class="cube_info">
+    <p>{{ event.summary }}</p>
+    <p>{{ event.price }}</p>
+</div>
+
+
+{% endblock %}

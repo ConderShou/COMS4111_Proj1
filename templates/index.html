@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block title %}Home{% endblock %}
+{% block header %}CUBE - Columbia Events{% endblock %}
+
+{% block content %}
+  <div class="menu">
+    <button class="btn btn-info other-btn">Preferred</button>
+    <button class="btn btn-success other-btn">Recommended</button> 
+    <button class="btn btn-primary login-btn">Login</button> 
+  </div>
+
+  <div>
+    {% for n in data %}
+    <a href="event/{{n.id}}">
+      <img class="cube_image" src={{ n.image_url }}>
+    </a>
+    {% endfor %}
+  </div>
+
+  <form method="POST" action="/add">
+  <p>Name of new computer scientist: <input type="text" name="name"> <input type="submit" value="Add"></p>
+  </form>
+{% endblock %}
+
+
