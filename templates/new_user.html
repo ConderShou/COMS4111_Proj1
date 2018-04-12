@@ -1,0 +1,17 @@
+{% extends "layout.html"}
+{% block title %}Create an Account{% endblock %}
+{% block header %}Create an Account{% endblock %}
+
+{% block content %}
+
+<div class="create-user">
+    <form method="POST" action="/create/user">
+        <p>UNI: <input type="text" name="uni"></p>
+        <p>School: <input type="text" name="school"></p>
+        <p>Age: <input type="text" name="age"></p>
+        
+        <button class="btn btn-primary" type="submit">Create</button>
+    </form>
+</div>
+
+{% endblock %}

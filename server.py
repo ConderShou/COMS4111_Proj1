@@ -196,8 +196,44 @@ def add():
 
 @app.route('/login')
 def login():
-    abort(401)
-    this_is_never_executed()
+  return render_template("login.html")
+
+@app.route('/user', methods=['POST'])
+def user():
+  uni = request.form['uni']
+
+  query = "SELECT * FROM users U WHERE u.uni = " + str(uni)
+  cursor = g.conn.execute(query)
+
+  # Check if cursor is pointing to a record (null?)
+  
+
+  # If not, ask to create a new user, redirect to create an account page
+  # return redirect('/new/user')
+
+
+  # Otherwise "login" the user and redirect to home page
+  
+  return redirect('/')
+
+
+@app.route('/new/user')
+def new_user():
+  return render_template('new_user.html')
+
+
+@app.route('/create/user', methods=['POST'])
+def create_user():
+
+  uni = request.form['uni']
+  school = request.form['school']
+  age = request.form['age']
+
+  query = str("INSERT INTO users(uni) VALUES (%s, %s, %s)", uni, school, age)
+
+  g.conn.execute(query)
+
+  return redirect('/login')
 
 
 if __name__ == "__main__":
