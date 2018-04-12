@@ -171,27 +171,42 @@ def index():
 
 @app.route('/event/<int:event_id>')
 def show_event(event_id):
-  queryEvent = "SELECT * FROM events E WHERE E.id = " + str(event_id)
+  queryEvent = "SELECT * FROM events E WHERE E.id = '%d'" % int(event_id)
   cursor = g.conn.execute(queryEvent)
 
   event = cursor.fetchone() 
+
+  # Check if user is logged in, if so execute query for checking if user is interested in event
+  
+  # Check if user has already indicated interest in this event
+  #   Get uni from global storage
+  
+  # query = "SELECT * FROM is_interested II WHERE (II.uni LIKE '%s') AND (II.id = %d)" % (uni, event_id)
+
 
   context = dict(event = event)
 
   return render_template("event.html", **context)
 
-@app.route('/another')
-def another():
-  return render_template("another.html")
+
+@app.route('/search')
+def search();
+  
+  # Get all building names currently used
+  query = "SELECT bname FROM locations" #CONFIRM THIS IS CORRECT
+
+  cursor = g.conn.execute(query)
+
+  bnames = []
+  for result in cursor:
+    bnames.append(result)
+
+  context = dict(bnames = bnames)
 
 
-# Example of adding new data to the database
-@app.route('/add', methods=['POST'])
-def add():
-  pass
-  # name = request.form['name']
-  # g.conn.execute('INSERT INTO test(name) VALUES (%s)', name)
-  # return redirect('/')
+  return render_template("search.html", **context)
+
+
 
 
 @app.route('/login')
@@ -212,11 +227,11 @@ def user():
     flash("User Not Found", "danger")
     return redirect('/new/user')
 
+  # TODO: STORE UNI globally
+  
+
   flash("Successfully logged in", "success")
   return redirect('/')
-
-
-
 
 @app.route('/new/user')
 def new_user():
