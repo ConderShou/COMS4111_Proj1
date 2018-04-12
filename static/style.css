@@ -66,10 +66,6 @@ h1 {
     font-size: 1em;
 }
 
-.flashes button {
-    float: left;
-}
-
 .cube_image {
     border-radius: 2px;
     box-shadow: rgba(0, 0, 0, 0.8) 1px 1px 6px, rgba(0, 0, 0, 0.12) 0px 1px 4px;
@@ -102,6 +98,10 @@ h1 {
 
 .login form, .new-user form {
     margin-top: 10%;
+}
+
+.new-user form {
+    text-align: center;
 }
 
 

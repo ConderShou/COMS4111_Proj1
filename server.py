@@ -209,9 +209,10 @@ def user():
   user = cursor.fetchone()
 
   if (user is None):
-      return redirect('/new/user')
+    flash("User Not Found", "danger")
+    return redirect('/new/user')
 
-  flash("Successfully logged in")
+  flash("Successfully logged in", "success")
   return redirect('/')
 
 
@@ -225,11 +226,11 @@ def new_user():
 @app.route('/create/user', methods=['POST'])
 def create_user():
 
-  uni = request.form['uni']
-  school = request.form['school']
-  age = request.form['age']
+  uni = str(request.form['uni'])
+  school = str(request.form['school'])
+  age = int(request.form['age']) 
 
-  query = "INSERT INTO users(uni) VALUES (%s, %s, %s)" % uni, school, age
+  query = "INSERT INTO users(uni, school, age) VALUES ('%s', '%s', %d)" % (uni, school, age)
 
   g.conn.execute(query)
 
