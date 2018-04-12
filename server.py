@@ -17,7 +17,7 @@ Read about it online.
 import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, request, session, render_template, g, redirect, Response
+from flask import Flask, flash, request, session, render_template, g, redirect, Response
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -202,19 +202,19 @@ def login():
 def user():
   uni = request.form['uni']
 
-  query = "SELECT * FROM users U WHERE u.uni = " + str(uni)
+  query = "SELECT * FROM users U WHERE U.uni LIKE '%s'" % str(uni)
   cursor = g.conn.execute(query)
 
   # Check if cursor is pointing to a record (null?)
-  
+  user = cursor.fetchone()
 
-  # If not, ask to create a new user, redirect to create an account page
-  # return redirect('/new/user')
+  if (user is None):
+      return redirect('/new/user')
 
-
-  # Otherwise "login" the user and redirect to home page
-  
+  flash("Successfully logged in")
   return redirect('/')
+
+
 
 
 @app.route('/new/user')
@@ -229,12 +229,14 @@ def create_user():
   school = request.form['school']
   age = request.form['age']
 
-  query = str("INSERT INTO users(uni) VALUES (%s, %s, %s)", uni, school, age)
+  query = "INSERT INTO users(uni) VALUES (%s, %s, %s)" % uni, school, age
 
   g.conn.execute(query)
 
   return redirect('/login')
 
+
+app.secret_key = 'secret'
 
 if __name__ == "__main__":
   import click

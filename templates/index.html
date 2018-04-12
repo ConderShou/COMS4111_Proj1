@@ -14,15 +14,20 @@
 
   <div>
     {% for n in data %}
-    <a href="event/{{n.id}}">
+    <a href="{{ url_for('show_event', event_id=n.id ) }}">
       <img class="cube_image" src={{ n.image_url }}>
     </a>
     {% endfor %}
   </div>
 
+<!-- Keeping this for reference 
+
   <form method="POST" action="/add">
   <p>Name of new computer scientist: <input type="text" name="name"> <input type="submit" value="Add"></p>
   </form>
+
+-->
+
 {% endblock %}
 
 

@@ -10,14 +10,28 @@
 </head>
 
 <body>
+  {% block messages %}
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flashes alert alert-success alert-dismissable" role="alert">
+        {% for message in messages %}
+          <a href="{{ url_for('index') }}"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></a>
+          <h3>{{ message }}</h3>
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+  {% endblock %}
+
   <div class="content">
     <div class="header_container">
         <h1>{% block header %}{% endblock %}</h1>        
     </div>
+  
 
     {% block content %}
     {% endblock %}
-    
+  
   </div>
 <!--   <script type="text/javascript" src="{{ url_for('static', filename='jquery.js') }}"></script> -->
 </body>

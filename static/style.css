@@ -56,6 +56,20 @@ h1 {
     height: 60px;
 }
 
+.flashes {
+    height: auto;
+    width: 100%;
+    text-align: center;
+}
+
+.flashes h3 {
+    font-size: 1em;
+}
+
+.flashes button {
+    float: left;
+}
+
 .cube_image {
     border-radius: 2px;
     box-shadow: rgba(0, 0, 0, 0.8) 1px 1px 6px, rgba(0, 0, 0, 0.12) 0px 1px 4px;
@@ -78,6 +92,16 @@ h1 {
 
 .other-btn {
     float: left;
+}
+
+/* Login & Create User */
+
+.login, .new-user {
+    text-align: center;
+}
+
+.login form, .new-user form {
+    margin-top: 10%;
 }
 
 
