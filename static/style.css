@@ -115,6 +115,55 @@ h1 {
     text-align: center;
 }
 
+/* Search */
+
+.search form {
+    margin-top: 3em;
+}
+
+.form-group {
+    margin: auto;
+    margin-top: 15px;
+}
+
+.form-group {
+    width: 50%;
+}
+
+.dates_input label {
+   width: 100%;
+}
+
+.dates_input input {
+    /*margin-right: 5px;*/
+    /*width: 100%;*/
+    /*float: left;*/
+}
+
+.submit {
+    width: 100%;
+    text-align: center;
+    margin-top: 30px;
+}
+
+.search button {
+    margin: auto;
+    text-align: center;
+}
+
+.time-label {
+    width: 100%;
+}
+
+.to {
+    text-align: center;
+}
+
+/*.input-group-prepend {
+    height: calc(2.25rem + 2px);
+    width: auto;
+}*/
+
 
 
 /* Hovering buttons look (Quizlet) */

@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+{% block title %}Filter{% endblock %}
+{% block header %}Filter{% endblock %}
+
+{% block content %}
+<div class="search">
+
+<form method="POST" action="/filter/results">
+    <div class="locations_input form-group">
+        <label class="location-label" for="locations-select">Location</label>
+        <select id="locations-select" class="custom-select">
+            <option name="location" selected>Choose...</option>
+            {% for n in bnames %}
+                <option value="{{n}}">{{ n }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="dates_input form-group row">
+        <label class="date-label">Date</label>
+        <div class="col">
+            <input type="text" name="month" class="form-control" placeholder="Month">
+        </div>
+        <div class="col">
+            <input type="text" name="day" class="form-control" placeholder="Day">
+        </div>
+        <div class="col">
+            <input type="text" name="year" class="form-control" placeholder="Year">
+        </div>
+    </div>
+    <div class="start_input form-group row">
+        <label class="time-label">Starting Time Range</label>
+        <div class="col">
+            <input type="text" name="start-upper" class="form-control" placeholder="0 - 24">
+        </div>
+        <div class="col to">
+            <label>To</label>
+        </div>
+        <div class="col">
+            <input type="text" name="start-lower" class="form-control" placeholder="0 - 24">
+        </div>
+    </div>
+    <div class="end_input form-group row">
+        <label class="time-label">Ending Time Range</label>
+        <div class="col">
+            <input type="text" name="end-upper" class="form-control" placeholder="0 - 24">
+        </div>
+        <div class="col to">
+            <label>To</label>
+        </div>
+        <div class="col">
+            <input type="text" name="end-lower" class="form-control" placeholder="0 - 24">
+        </div>
+    </div>
+    
+    <div class="submit">
+        <button class="btn btn-primary" type="submit">Filter</button>
+    </div>
+    
+</form>
+
+<div>
+    {% for n in data %}
+    <a href="{{ url_for('show_event', event_id=n.id ) }}">
+      <img class="cube_image" src={{ n.image_url }}>
+    </a>
+    {% endfor %}
+</div>
+
+</div>
+{% endblock %}

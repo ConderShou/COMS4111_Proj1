@@ -230,23 +230,25 @@ def add_interested(event_id):
   return redirect(url_for('show_event', event_id=event_id))
 
 
-@app.route('/search')
-def search():
+@app.route('/filter')
+def filter():
   
   # Get all building names currently used
-  query = "SELECT bname FROM locations" #CONFIRM THIS IS CORRECT
+  query = "SELECT building_name FROM locations" #CONFIRM THIS IS CORRECT
 
   cursor = g.conn.execute(query)
 
   bnames = []
   for result in cursor:
-    bnames.append(result)
+    bnames.append(result.building_name)
 
   context = dict(bnames = bnames)
 
+  return render_template("filter.html", **context)
 
-  return render_template("search.html", **context)
-
+@app.route('/filter/results', methods=['POST'])
+def filter_results():
+  pass
 
 @app.route('/login')
 def login():
@@ -297,7 +299,8 @@ def create_user():
   return redirect('/login')
 
 
-app.secret_key = 'secret'
+
+app.secret_key = 'a mysterious key unbeknowst to man'
 
 if __name__ == "__main__":
   import click
