@@ -252,6 +252,30 @@ def show_interested():
   context = dict(data = image_urls)
   return render_template("interested.html", **context)
 
+@app.route('/recommended')
+def show_recommended():
+  if "logged_in" not in session:
+    flash("Not logged in", "danger")
+    return redirect(url_for('index'))
+
+  uni = session["uni"]
+  query = "SELECT image_url, id, type FROM events E WHERE (E.type IN (SELECT (type) FROM (interested_in NATURAL JOIN events) AS IE WHERE (IE.uni LIKE '%s')) AND (E.id NOT IN (SELECT (id) FROM (interested_in NATURAL JOIN events) AS IE WHERE (IE.uni LIKE '%s'))));" % (uni, uni)
+
+  cursor = g.conn.execute(query)
+
+  image_urls = []
+  types = set()
+  for result in cursor:
+    event = {}
+    event['image_url'] = result['image_url']
+    event['id'] = result['id']
+
+    image_urls.append(event) 
+    types.add(result["type"])
+
+  context = dict(data = image_urls, types = types)
+  return render_template("recommended.html", **context)
+
 @app.route('/filter')
 def filter():
   
@@ -263,7 +287,6 @@ def filter():
   bnames = []
   for result in cursor:
     bnames.append(result.building_name)
-
 
   cursor.close()
   context = dict(bnames = bnames)
@@ -287,7 +310,7 @@ def filter_results():
   end_lower = request.form['end-lower']
 
   # Query for events with corresopnding attributes  
-
+  
 
   cursor.close()
   context = dict(data = {})

@@ -4,13 +4,12 @@
 
 {% block content %}
   <div class="menu">
-    <a href="{{ url_for('filter') }}">
-      <button class="btn btn-warning other-btn">Filter</button>
-    </a>
     <a href="{{ url_for('show_interested') }}">
       <button class="btn btn-info other-btn">Interested</button>
     </a>
-    <button class="btn btn-success other-btn">Recommended</button> 
+    <a href="{{ url_for('show_recommended') }}">
+      <button class="btn btn-success other-btn">Recommended</button> 
+    </a>
     <a href="{{ url_for('login') }}">
       <button class="btn btn-{{ logged_in.color }} login-btn">{{logged_in.msg}}</button> 
     </a>
