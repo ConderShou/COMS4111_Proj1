@@ -17,7 +17,7 @@ Read about it online.
 import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, flash, request, session, render_template, g, redirect, Response
+from flask import Flask, flash, request, session, render_template, g, redirect, Response, url_for
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -69,6 +69,7 @@ def before_request():
     print("uh oh, problem connecting to database")
     import traceback; traceback.print_exc()
     g.conn = None
+
 
 @app.teardown_request
 def teardown_request(exception):
@@ -177,20 +178,56 @@ def show_event(event_id):
   event = cursor.fetchone() 
 
   # Check if user is logged in, if so execute query for checking if user is interested in event
-  
-  # Check if user has already indicated interest in this event
-  #   Get uni from global storage
-  
-  # query = "SELECT * FROM is_interested II WHERE (II.uni LIKE '%s') AND (II.id = %d)" % (uni, event_id)
+  interested = {}
+  interested["color"] = "secondary"
+  interested["msg"] = "Not Interested"
+
+  if "logged_in" in session:
+
+    # Check if user has already indicated interest in this event
+    #   Get uni from global storage
+
+    uni = session["uni"]
+
+    query = "SELECT * FROM interested_in II WHERE (II.uni LIKE '%s') AND (II.id = %d)" % (uni, event_id)
+
+    cursor = g.conn.execute(query)
+
+    interest = cursor.fetchone()
+
+    if interest is not None:
+      interested["color"] = "info"
+      interested["msg"] = "Interested"
 
 
-  context = dict(event = event)
-
+  context = dict(event = event, interested = interested)
   return render_template("event.html", **context)
 
 
+@app.route('/addInterested/<int:event_id>')
+def add_interested(event_id):
+
+  if "logged_in" not in session:
+    flash("Not logged in", "danger")
+    return redirect(url_for('show_event', event_id=event_id))
+
+  uni = session["uni"]
+
+  query = "INSERT INTO interested_in(id, uni) VALUES (%d, '%s')" % (event_id, uni)
+
+  try:
+    g.conn.execute(query)
+    flash("Added event as interested", "success")
+  except:
+    query = "DELETE FROM interested_in II WHERE (II.uni LIKE '%s') AND (II.id = %d)" % (uni, event_id)
+    g.conn.execute(query)
+    flash("Event removed from interested", "danger")
+
+  return redirect(url_for('show_event', event_id=event_id))
+
+
 @app.route('/search')
-def search();
+def search():
   
   # Get all building names currently used
   query = "SELECT bname FROM locations" #CONFIRM THIS IS CORRECT
@@ -213,6 +250,7 @@ def search();
 def login():
   return render_template("login.html")
 
+
 @app.route('/user', methods=['POST'])
 def user():
   uni = request.form['uni']
@@ -227,11 +265,12 @@ def user():
     flash("User Not Found", "danger")
     return redirect('/new/user')
 
-  # TODO: STORE UNI globally
-  
+  session["logged_in"] = True
+  session["uni"] = uni
 
   flash("Successfully logged in", "success")
   return redirect('/')
+
 
 @app.route('/new/user')
 def new_user():

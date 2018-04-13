@@ -2,6 +2,10 @@
 {% block title %}{{event.name}}{% endblock %}
 {% block header %}{{event.name}}{% endblock %}
 
+{% block messages %}
+    {{ super() }}
+{% endblock %}
+
 {% block content %}
 
 
@@ -12,5 +16,8 @@
     <p>{{ event.price }}</p>
 </div>
 
+<div class="options">
+    <a href="{{ url_for('add_interested', event_id=event.id) }}"<button class="btn btn-{{ interested.color }}">{{ interested.msg }}</button>
+</div>
 
 {% endblock %}

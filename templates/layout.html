@@ -24,10 +24,11 @@
   {% endblock %}
 
   <div class="content">
-    <div class="header_container">
-        <h1>{% block header %}{% endblock %}</h1>        
-    </div>
-  
+    <a class="header_link" href="{{ url_for('index') }}">
+      <div class="header_container">
+            <h1>{% block header %}{% endblock %}</h1>        
+      </div>
+    </a>
 
     {% block content %}
     {% endblock %}
