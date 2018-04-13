@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+{% block title %}My Interested Events{% endblock %}
+{% block header %}My Interested Events{% endblock %}
+
+{% block content %}
+    {% for n in data %}
+    <a href="{{ url_for('show_event', event_id=n.id ) }}">
+      <img class="cube_image" src={{ n.image_url }}>
+    </a>
+    {% endfor %}
+{% endblock %}

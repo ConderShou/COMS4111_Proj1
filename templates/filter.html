@@ -3,13 +3,14 @@
 {% block header %}Filter{% endblock %}
 
 {% block content %}
+
 <div class="search">
 
 <form method="POST" action="/filter/results">
     <div class="locations_input form-group">
-        <label class="location-label" for="locations-select">Location</label>
-        <select id="locations-select" class="custom-select">
-            <option name="location" selected>Choose...</option>
+        <label class="location-label">Location</label>
+        <select id="locations-select" name="location" class="custom-select">
+            <option selected>Choose...</option>
             {% for n in bnames %}
                 <option value="{{n}}">{{ n }}</option>
             {% endfor %}
@@ -18,13 +19,13 @@
     <div class="dates_input form-group row">
         <label class="date-label">Date</label>
         <div class="col">
-            <input type="text" name="month" class="form-control" placeholder="Month">
+            <input type="text" name="month" class="form-control" placeholder="Month (1 - 12)">
         </div>
         <div class="col">
-            <input type="text" name="day" class="form-control" placeholder="Day">
+            <input type="text" name="day" class="form-control" placeholder="Day (1 - 31)">
         </div>
         <div class="col">
-            <input type="text" name="year" class="form-control" placeholder="Year">
+            <input type="text" name="year" class="form-control" placeholder="Year (17, 18, etc...)">
         </div>
     </div>
     <div class="start_input form-group row">
@@ -57,14 +58,6 @@
     </div>
     
 </form>
-
-<div>
-    {% for n in data %}
-    <a href="{{ url_for('show_event', event_id=n.id ) }}">
-      <img class="cube_image" src={{ n.image_url }}>
-    </a>
-    {% endfor %}
-</div>
 
 </div>
 {% endblock %}

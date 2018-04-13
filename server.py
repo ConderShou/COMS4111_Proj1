@@ -96,6 +96,7 @@ def teardown_request(exception):
 # see for routing: http://flask.pocoo.org/docs/0.10/quickstart/#routing
 # see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
 #
+
 @app.route('/')
 def index():
   """
@@ -112,79 +113,64 @@ def index():
   logged_in["color"] = "primary"
   logged_in["msg"] = "Log In"
 
+  loggedIn = False
   if "logged_in" in session:
     logged_in["color"] = "success"
     logged_in["msg"] = "Logged In: %s" % session["uni"]
+    loggedIn = True
+  
 
+  # ORDER BY day, month, year ASC (once Alex update info in table)
   #
-  # example of a database query
-  #
-  queryImageUrls = "SELECT image_url, id FROM events"
+  queryImageUrls = "SELECT image_url, id, age_limit FROM events ORDER BY year, month, day" 
 
   cursor = g.conn.execute(queryImageUrls)
+
   image_urls = []
   for result in cursor:
     event = {}
     event['image_url'] = result['image_url']
     event['id'] = result['id']
-    image_urls.append(event)  # can also be accessed using result[0]
+
+    image_urls.append(event) 
+
   cursor.close()
+  # Adding events that the user can attend for later viewing
+  if (loggedIn and ("age" in session) and (session["checked_attend"] == False)):
+    query = "SELECT image_url, id, age_limit FROM events E WHERE E.age_limit <= %d" % session["age"]
+    cursor = g.conn.execute(query)
 
-  #
-  # Flask uses Jinja templates, which is an extension to HTML where you can
-  # pass data to a template and dynamically generate HTML based on the data
-  # (you can think of it as simple PHP)
-  # documentation: https://realpython.com/blog/python/primer-on-jinja-templating/
-  #
-  # You can see an example template in templates/index.html
-  #
-  # context are the variables that are passed to the template.
-  # for example, "data" key in the context variable defined below will be 
-  # accessible as a variable in index.html:
-  #
-  #     # will print: [u'grace hopper', u'alan turing', u'ada lovelace']
-  #     <div>{{data}}</div>
-  #     
-  #     # creates a <div> tag for each element in data
-  #     # will print: 
-  #     #
-  #     #   <div>grace hopper</div>
-  #     #   <div>alan turing</div>
-  #     #   <div>ada lovelace</div>
-  #     #
-  #     {% for n in data %}
-  #     <div>{{n}}</div>
-  #     {% endfor %}
-  #
+    for result in cursor:
+      query = "INSERT INTO can_attend(id, uni) VALUES (%d, '%s')" % (result.id, session["uni"])
+      try:
+        g.conn.execute(query)
+      except:
+        pass
+    session["checked_attend"] = True
+
+    cursor.close()
+
   context = dict(data = image_urls, logged_in = logged_in)
-
-
-  #
-  # render_template looks in the templates/ folder for files.
-  # for example, the below file reads template/index.html
-  #
   return render_template("index.html", **context)
 
-#
-# This is an example of a different path.  You can see it at:
-# 
-#     localhost:8111/another
-#
-# Notice that the function name is another() rather than index()
-# The functions for each app.route need to have different names
-#
 
 @app.route('/event/<int:event_id>')
 def show_event(event_id):
   queryEvent = "SELECT * FROM events E WHERE E.id = '%d'" % int(event_id)
   cursor = g.conn.execute(queryEvent)
 
-  event = cursor.fetchone() 
+  # QUERIED FOR PRIMARY EVENT INFO
+  
+  event = cursor.fetchone()
 
+  # QUERYING FOR INTEREST 
+  
   # Check if user is logged in, if so execute query for checking if user is interested in event
   interested = {}
   interested["color"] = "secondary"
   interested["msg"] = "Not Interested"
+
+  can_attend = "Not logged in"
 
   if "logged_in" in session:
 
@@ -204,15 +190,28 @@ def show_event(event_id):
       interested["msg"] = "Interested"
 
 
-  context = dict(event = event, interested = interested)
+    # QUERYING IF CAN ATTEND
+    query = "SELECT COUNT(*) AS count_rows FROM can_attend CA WHERE (CA.uni LIKE '%s') AND (CA.id = %d)" % (uni, event_id)
+    cursor = g.conn.execute(query)
+    count = cursor.fetchone()
+    print("COUNT ROWS: ", count, count.count_rows)
+
+    can_attend = "True" if int(count.count_rows) else "False"
+
+  cursor.close()
+
+  context = dict(event = event, interested = interested, can_attend = can_attend)
   return render_template("event.html", **context)
 
 
-@app.route('/addInterested/<int:event_id>')
-def add_interested(event_id):
+@app.route('/addInterested/<int:event_id>/<can_attend>')
+def add_interested(event_id, can_attend):
 
   if "logged_in" not in session:
     flash("Not logged in", "danger")
+    return redirect(url_for('show_event', event_id=event_id))
+  elif can_attend == "False":
+    flash("Can only show interest if you're able to attend", "danger")
     return redirect(url_for('show_event', event_id=event_id))
 
   uni = session["uni"]
@@ -222,13 +221,36 @@ def add_interested(event_id):
   try:
     g.conn.execute(query)
     flash("Added event as interested", "success")
+    query = "UPDATE events SET num_interested = num_interested + 1 WHERE events.id = %d" % event_id
+    g.conn.execute(query)
   except:
     query = "DELETE FROM interested_in II WHERE (II.uni LIKE '%s') AND (II.id = %d)" % (uni, event_id)
     g.conn.execute(query)
     flash("Event removed from interested", "danger")
+    query = "UPDATE events SET num_interested = num_interested - 1 WHERE events.id = %d" % event_id
+    g.conn.execute(query) 
 
   return redirect(url_for('show_event', event_id=event_id))
 
+@app.route('/interested')
+def show_interested():
+  if "logged_in" not in session:
+    flash("Not logged in", "danger")
+    return redirect(url_for('index'))
+
+  query = "SELECT id, image_url FROM (interested_in NATURAL JOIN events) AS IE WHERE IE.uni LIKE '%s'" % session["uni"]
+  cursor = g.conn.execute(query)
+
+  image_urls = []
+  for result in cursor:
+    event = {}
+    event['image_url'] = result['image_url']
+    event['id'] = result['id']
+
+    image_urls.append(event) 
+
+  context = dict(data = image_urls)
+  return render_template("interested.html", **context)
 
 @app.route('/filter')
 def filter():
@@ -242,13 +264,35 @@ def filter():
   for result in cursor:
     bnames.append(result.building_name)
 
-  context = dict(bnames = bnames)
 
+  cursor.close()
+  context = dict(bnames = bnames)
   return render_template("filter.html", **context)
+
 
 @app.route('/filter/results', methods=['POST'])
 def filter_results():
-  pass
+  print("REQUEST: ", request.form)
+
+  location = request.form['location']
+
+  month = request.form['month']
+  day = request.form['day']
+  year = request.form['year']
+
+  start_upper = request.form['start-upper']
+  start_lower = request.form['start-lower']
+
+  end_upper = request.form['end-upper']
+  end_lower = request.form['end-lower']
+
+  # Query for events with corresopnding attributes  
+
+
+  cursor.close()
+  context = dict(data = {})
+  return render_template('filter-results.html', **context)
+
 
 @app.route('/login')
 def login():
@@ -263,10 +307,10 @@ def login():
 def user():
   uni = request.form['uni']
 
-  query = "SELECT * FROM users U WHERE U.uni LIKE '%s'" % str(uni)
+  query = "SELECT uni, age FROM users U WHERE U.uni LIKE '%s'" % str(uni)
   cursor = g.conn.execute(query)
 
-  # Check if cursor is pointing to a record (null?)
+  # Check if cursor is pointing to a record
   user = cursor.fetchone()
 
   if (user is None):
@@ -274,9 +318,13 @@ def user():
     return redirect('/new/user')
 
   session["logged_in"] = True
-  session["uni"] = uni
+  session["uni"] = user.uni
+  session["age"] = user.age
+  session["checked_attend"] = False
 
   flash("Successfully logged in", "success")
+
+  cursor.close()
   return redirect('/')
 
 

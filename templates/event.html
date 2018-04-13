@@ -13,11 +13,20 @@
 
 <div class="cube_info">
     <p>{{ event.summary }}</p>
-    <p>{{ event.price }}</p>
+    <p>Address: {{ event.address }}</p>
+    <p>{{ event.month}}/{{event.day}}/{{event.year}}</p>
+    <p>Time: {{event.start_time}} to {{event.end_time}}</p>
+    <p>Entry Price: {{ event.price }}</p>
+    <p>Number of Interested: {{ event.num_interested }}</p>
+    <p>Age Limit: {{ event.age_limit }}</p>
+    <p>Category: {{ event.type }}</p>
+    <p>Free Food? {{ event.free_food }}</p>
+    <p>Can Attend? {{ can_attend }}</p>
+    <p>Contact: {{event.contact_name}} {{event.contact_email}} {{event.contact_phone}}</p>
 </div>
 
 <div class="options">
-    <a href="{{ url_for('add_interested', event_id=event.id) }}"<button class="btn btn-{{ interested.color }}">{{ interested.msg }}</button>
+    <a href="{{ url_for('add_interested', event_id=event.id, can_attend=can_attend) }}"<button class="btn btn-{{ interested.color }}">{{ interested.msg }}</button>
 </div>
 
 {% endblock %}
