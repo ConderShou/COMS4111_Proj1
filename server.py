@@ -108,9 +108,13 @@ def index():
   See its API: http://flask.pocoo.org/docs/0.10/api/#incoming-request-data
   """
 
-  # DEBUG: this is debugging code to see what request looks like
-  print(request.args)
+  logged_in = {}
+  logged_in["color"] = "primary"
+  logged_in["msg"] = "Log In"
 
+  if "logged_in" in session:
+    logged_in["color"] = "success"
+    logged_in["msg"] = "Logged In: %s" % session["uni"]
 
   #
   # example of a database query
@@ -152,7 +156,7 @@ def index():
   #     <div>{{n}}</div>
   #     {% endfor %}
   #
-  context = dict(data = image_urls)
+  context = dict(data = image_urls, logged_in = logged_in)
 
 
   #
@@ -244,10 +248,12 @@ def search():
   return render_template("search.html", **context)
 
 
-
-
 @app.route('/login')
 def login():
+  if "logged_in" in session:
+    del session["logged_in"]
+    return redirect(url_for('index'))
+
   return render_template("login.html")
 
 

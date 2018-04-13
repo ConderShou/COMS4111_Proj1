@@ -10,7 +10,7 @@
     <button class="btn btn-info other-btn">Interested</button>
     <button class="btn btn-success other-btn">Recommended</button> 
     <a href="{{ url_for('login') }}">
-      <button class="btn btn-primary login-btn">Login</button> 
+      <button class="btn btn-{{ logged_in.color }} login-btn">{{logged_in.msg}}</button> 
     </a>
   </div>
 
