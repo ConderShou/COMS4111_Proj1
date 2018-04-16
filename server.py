@@ -280,7 +280,7 @@ def show_recommended():
 def filter():
   
   # Get all building names currently used
-  query = "SELECT building_name FROM locations" #CONFIRM THIS IS CORRECT
+  query = "SELECT DISTINCT building_name FROM events" #CONFIRM THIS IS CORRECT
 
   cursor = g.conn.execute(query)
 
@@ -310,7 +310,7 @@ def filter_results():
   end_lower = request.form['end-lower']
 
   # Query for events with corresopnding attributes  
-  
+
 
   cursor.close()
   context = dict(data = {})
